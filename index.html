@@ -107,8 +107,12 @@
   /* Hero: step into the cover */
   .hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;overflow:hidden;color:#FBF1D6;background:var(--storm)}
   .hero-art{position:absolute;inset:0;background:var(--art) 62% 46%/cover no-repeat}
+  /* Desktop: a full-height view of the scene on the right so the cross, Jesus, and the sheep always show */
+  .hero-figure{display:none;position:absolute;right:0;bottom:-1%;height:128%;aspect-ratio:2/3;background:var(--art) center/cover no-repeat;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 28%,#000 50%);mask-image:linear-gradient(90deg,transparent 0%,transparent 28%,#000 50%)}
+  @media (min-width:901px){.hero-figure{display:block}.hero-art{background-position:30% 0%;background-size:120% auto}}
   .hero-shade{position:absolute;inset:0;background:
-      linear-gradient(90deg,rgba(46,80,136,.92) 0%,rgba(46,80,136,.78) 34%,rgba(46,80,136,.25) 58%,rgba(46,80,136,0) 72%),
+      linear-gradient(90deg,rgba(46,80,136,.92) 0%,rgba(46,80,136,.8) 34%,rgba(46,80,136,.3) 52%,rgba(46,80,136,0) 64%),
       linear-gradient(0deg,rgba(46,80,136,.55) 0%,transparent 30%),
       linear-gradient(180deg,rgba(46,80,136,.55) 0%,transparent 16%)}
   .hero .wrap{position:relative;width:100%;padding-top:7rem;padding-bottom:9rem}
@@ -204,6 +208,9 @@
   .send{display:flex;justify-content:center}
   .form-note{text-align:center;font-size:1.05rem;color:#5E4F35;margin:0}
   .req{color:#8A1F11;font-weight:600}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .form-note.ok{color:#1F5E2E;font-weight:600}
+  .form-note.err{color:#8A1F11;font-weight:600}
   .field-error{display:block;margin-top:.3rem;font-size:1rem;color:#8A1F11}
   input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:#8A1F11;border-width:2px}
   .btn.is-soon{cursor:default;opacity:.92}
@@ -216,7 +223,7 @@
 
   /* One orchestrated moment: dawn breaks on arrival */
   @media (prefers-reduced-motion:no-preference){
-    .hero-art{animation:dawn 3s ease-out both}
+    .hero-art,.hero-figure{animation:dawn 3s ease-out both}
     .hero-text>*{animation:rise 1s ease-out both}
     .hero-text>*:nth-child(2){animation-delay:.25s}.hero-text>*:nth-child(3){animation-delay:.4s}.hero-text>*:nth-child(4){animation-delay:.55s}.hero-text>*:nth-child(5){animation-delay:.7s}
     @keyframes dawn{from{filter:brightness(.45) saturate(.7);transform:scale(1.06)}to{filter:none;transform:none}}
@@ -287,6 +294,7 @@
 <main id="main" tabindex="-1"><span id="top"></span>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-art" aria-hidden="true"></div>
+    <div class="hero-figure" aria-hidden="true"></div>
     <div class="hero-shade" aria-hidden="true"></div>
     <div class="wrap">
       <div class="hero-text">
@@ -384,13 +392,15 @@
       <div class="invite-card">
         <h2 class="panel-title" id="invite-title">Invite Bridgett</h2>
         <p>Share a few details about your church, ministry, or event, and Bridgett will be in touch about speaking, teaching, or prayer. Fields marked <span class="req" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.</p>
-        <form id="invite-form" novalidate aria-describedby="form-status">
+        <form id="invite-form" action="https://formspree.io/f/xwlvkdyr" method="POST" novalidate aria-describedby="form-status">
+          <input type="hidden" name="_subject" id="subject-field" value="New message from bridgetttarpley.com">
+          <div class="hp" aria-hidden="true"><label for="gotcha">Leave this field empty</label><input type="text" id="gotcha" name="_gotcha" tabindex="-1" autocomplete="off"></div>
           <div><label for="name">Your name <span class="req" aria-hidden="true">*</span></label><input id="name" name="name" autocomplete="name" required aria-required="true" aria-describedby="name-err"><span class="field-error" id="name-err"></span></div>
           <div><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" required aria-required="true" aria-describedby="email-err"><span class="field-error" id="email-err"></span></div>
-          <div><label for="org">Church or organization</label><input id="org" name="org" autocomplete="organization"></div>
-          <div><label for="date">Event date (if known)</label><input id="date" name="date" type="date"></div>
+          <div><label for="org">Church or organization</label><input id="org" name="church_or_organization" autocomplete="organization"></div>
+          <div><label for="date">Event date (if known)</label><input id="date" name="event_date" type="date"></div>
           <div class="full"><label for="type">I'm reaching out about</label>
-            <select id="type" name="type">
+            <select id="type" name="reaching_out_about">
               <option>Speaking at an event</option>
               <option>Teaching or a workshop</option>
               <option>Prayer ministry</option>
@@ -398,9 +408,9 @@
               <option>Something else</option>
             </select>
           </div>
-          <div class="full"><label for="msg">Message <span class="req" aria-hidden="true">*</span></label><textarea id="msg" name="msg" required aria-required="true" aria-describedby="msg-err"></textarea><span class="field-error" id="msg-err"></span></div>
+          <div class="full"><label for="msg">Message <span class="req" aria-hidden="true">*</span></label><textarea id="msg" name="message" required aria-required="true" aria-describedby="msg-err"></textarea><span class="field-error" id="msg-err"></span></div>
           <div class="full send"><button class="btn btn-gold" type="submit">Send message</button></div>
-          <p class="form-note full" id="form-status" role="status" aria-live="polite">This opens your email app with your message ready to send.</p>
+          <p class="form-note full" id="form-status" role="status" aria-live="polite">Your message goes straight to Bridgett. She will reply by email.</p>
         </form>
       </div>
     </div>
@@ -415,7 +425,7 @@
 </footer>
 
 <script>
-  // Bridgett's contact email for the invite form.
+  // Shown if the form ever fails to send.
   const CONTACT_EMAIL = "info@bridgetttarpley.com";
 
   // The road of light fills in as you walk down the page toward the cross.
@@ -453,15 +463,24 @@
       firstBad.focus();
       return;
     }
-    const name = f.name.value.trim(), email = f.email.value.trim(), msg = f.msg.value.trim();
-    const subject = encodeURIComponent(f.type.value + " | " + name);
-    const body = encodeURIComponent(
-      "Name: " + name + "\nEmail: " + email +
-      "\nChurch or organization: " + (f.org.value || "Not given") +
-      "\nEvent date: " + (f.date.value || "Not given") + "\n\n" + msg
-    );
-    window.location.href = "mailto:" + CONTACT_EMAIL + "?subject=" + subject + "&body=" + body;
-    status.textContent = "Your email app should open with your message. If it doesn't, write to " + CONTACT_EMAIL + ".";
+    const btn = f.querySelector('button[type="submit"]');
+    document.getElementById("subject-field").value = "Website message: " + f.reaching_out_about.value + " | " + f.name.value.trim();
+    btn.disabled = true; btn.textContent = "Sending...";
+    status.className = "form-note full"; status.textContent = "Sending your message...";
+    fetch(f.action, { method: "POST", body: new FormData(f), headers: { "Accept": "application/json" } })
+      .then(r => {
+        if (!r.ok) throw new Error("send failed");
+        f.reset();
+        ["name","email","msg"].forEach(id => document.getElementById(id).removeAttribute("aria-invalid"));
+        status.className = "form-note full ok";
+        status.textContent = "Thank you! Your message was sent. Bridgett will reply by email soon.";
+        status.setAttribute("tabindex","-1"); status.focus();
+      })
+      .catch(() => {
+        status.className = "form-note full err";
+        status.textContent = "Your message did not send. Please try again, or email " + CONTACT_EMAIL + ".";
+      })
+      .finally(() => { btn.disabled = false; btn.textContent = "Send message"; });
   });
   // Mobile menu: opens and closes, closes on Escape or after choosing a link.
   const menuBtn = document.querySelector(".menu-btn"), navList = document.getElementById("nav-list");
